@@ -66,7 +66,15 @@ func main() {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(middleware.AllowContentType("application/json"))
 
-	r.Get("/", recipeHandlers.GetAllRecipes)
+	r.Get("/recipes", recipeHandlers.GetAllRecipes)
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, handlers.HttpError{
+			Error:     "route not found",
+			Code:      http.StatusNotFound,
+			Temporary: false,
+		})
+	})
 
 	server := &http.Server{Addr: "0.0.0.0:4000", Handler: r}
 
