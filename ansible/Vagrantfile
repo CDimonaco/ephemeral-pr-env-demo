@@ -9,9 +9,10 @@ Vagrant.configure(2) do |config|
     ansible.extra_vars = {
       api_postgres_password: "pass",
       api_server_name: "localhost:8080",
-      api_container_image: "ghcr.io/cdimonaco/pr-api:1-env",
+      api_container_image: "ghcr.io/cdimonaco/pr-api:3-env",
       force_recreate_api_container: "true",
-      force_pull_images: "true"
+      force_pull_images: "true",
+      nginx_vhost_filename: "apipr3.conf"
     }
   end
   config.vm.provider "libvirt" do |v|

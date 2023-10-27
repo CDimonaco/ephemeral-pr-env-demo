@@ -28,10 +28,10 @@
     - name: "{{ docker_network_name }}"
    image: "{{ api_container_image }}"
    pull: true
-   entrypoint: ["/bin/sh", "-c", "/app/entrypoint.sh migrate-up && /app/entrypoint.sh seeder && /app/entrypoint.sh server"]
+   entrypoint: ["/bin/sh", "-c", "/app/entrypoint.sh migrate-up && /app/entrypoint.sh seeder /app/seed.sql && /app/entrypoint.sh server"]
    etc_hosts:
     host.docker.internal: "host-gateway"
    ports:
     - "{{ api_container_port }}:4000"
    env:
-    PG_CONNECTION: "postgresql://{{ api_postgres_user }}:{{ api_postgres_password }}@{{ api_postgres_host }}/{{ api_postgres_db }}?sslmode=disable"
+    DB_CONNECTION: "postgresql://{{ api_postgres_user }}:{{ api_postgres_password }}@{{ api_postgres_host }}/{{ api_postgres_db }}?sslmode=disable"
