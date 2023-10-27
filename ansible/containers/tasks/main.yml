@@ -1,0 +1,37 @@
+# code: language=ansible
+---
+- name: Install docker python management deps
+  ansible.builtin.pip:
+   name:
+    - docker
+   state: present
+
+- name: Force pull images
+  when: force_pull_images == 'true'
+  community.docker.docker_image:
+   name: "{{ api_container_image }}"
+   force_source: true
+   source: pull
+
+
+- name: Create docker network
+  community.docker.docker_network:
+   name: "{{ docker_network_name }}"
+
+- name: Api container
+  community.docker.docker_container:
+   name: "{{ api_container_name }}"
+   state: started
+   restart_policy: unless-stopped
+   recreate: "{{ force_recreate_api_container == 'true' }}"
+   networks:
+    - name: "{{ docker_network_name }}"
+   image: "{{ api_container_image }}"
+   pull: true
+   entrypoint: ["/bin/sh", "-c", "/app/entrypoint.sh migrate-up && /app/entrypoint.sh seeder && /app/entrypoint.sh server"]
+   etc_hosts:
+    host.docker.internal: "host-gateway"
+   ports:
+    - "{{ api_container_port }}:4000"
+   env:
+    PG_CONNECTION: "postgresql://{{ api_postgres_user }}:{{ api_postgres_password }}@{{ api_postgres_host }}/{{ api_postgres_db }}?sslmode=disable"

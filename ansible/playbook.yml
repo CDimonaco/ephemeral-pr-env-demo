@@ -1,0 +1,54 @@
+# code: language=ansible
+---
+- name: Install thirdparties
+  hosts: all
+  become: true
+  tasks:
+   - name: Install installation prerequisites
+     community.general.zypper:
+      name:
+       - gcc
+       - python3-devel
+       - sudo
+
+   - name: Install python prerequisites
+     community.general.zypper:
+      name:
+       - python3-setuptools
+       - python3-pip
+      state: present
+      update_cache: true
+
+   - name: Install docker
+     community.general.zypper:
+      name: docker
+      state: present
+      update_cache: true
+
+   - name: Start docker service
+     ansible.builtin.service:
+      name: docker
+      state: started
+      enabled: true
+
+- name: Provision postgres
+  become: true
+  vars:
+   provision_postgres: "true"
+  hosts: all
+  roles:
+   - role: postgres
+     when: provision_postgres == 'true'
+     become: true
+
+- name: Configure projects
+  vars:
+   provision_proxy: "true"
+  hosts: all
+  become: true
+  roles:
+   - role: containers
+     become: true
+   - role: proxy
+     when: provision_proxy == 'true'
+     become: true

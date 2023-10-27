@@ -1,0 +1,10 @@
+---
+docker_network_name: prnet
+api_container_name: pr_api
+api_container_port: "{{ 32767 | random(start=1024, seed=api_container_image) }}"
+api_postgres_db: webdb
+api_postgres_user: web
+api_postgres_host: "host.docker.internal"
+force_pull_images: "false"
+force_recreate_api_container: "false"
+remove_api_container_image: "true"

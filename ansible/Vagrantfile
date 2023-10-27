@@ -1,0 +1,22 @@
+Vagrant.require_version ">= 1.8.0"
+
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "opensuse/Leap-15.3.x86_64"
+  config.vm.provision "ansible" do |ansible|
+    # ansible.verbose = "v"
+    ansible.playbook = "playbook.yml"
+    ansible.extra_vars = {
+      api_postgres_password: "pass",
+      api_server_name: "localhost:8080",
+      api_container_image: "ghcr.io/cdimonaco/pr-api:1-env",
+      force_recreate_api_container: "true",
+      force_pull_images: "true"
+    }
+  end
+  config.vm.provider "libvirt" do |v|
+    v.memory = 4096
+    v.cpus = 2
+  end
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+end
