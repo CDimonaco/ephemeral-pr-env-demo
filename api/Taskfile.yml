@@ -7,11 +7,21 @@ tasks:
     cmds:
       -  CGO_ENABLED=0 go build -o ./build/server cmd/server/main.go
   
+  build-seeder:
+    cmds:
+      -  CGO_ENABLED=0 go build -o ./build/seeder cmd/seeder/main.go
+
   run-server:
     vars:
       PG_CONNECTION: "postgresql://postgres:postgres@localhost:5433/api_demo?sslmode=disable"
     cmds:
       - DB_CONNECTION={{ .PG_CONNECTION }} go run cmd/server/main.go
+
+  run-seeder:
+    vars:
+      PG_CONNECTION: "postgresql://postgres:postgres@localhost:5433/api_demo?sslmode=disable"
+    cmds:
+      - DB_CONNECTION={{ .PG_CONNECTION }} go run cmd/seeder/main.go ./internal/persistence/seed/test.sql
 
   migrate-down:
     cmds:
