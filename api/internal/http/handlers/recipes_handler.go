@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/cdimonaco/ephimeral-pr-env-demo/api/internal/http/responses"
 	"github.com/cdimonaco/ephimeral-pr-env-demo/api/internal/persistence"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
@@ -39,5 +40,5 @@ func (h *RecipesHandler) GetAllRecipes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.JSON(w, r, recipes)
+	render.JSON(w, r, responses.MapRecipesEntitiesToRecipeResponseList(recipes))
 }
