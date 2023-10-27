@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
-COPY . /app
+COPY ./api /app
 
 RUN task build-server
 RUN task build-seeder
@@ -21,7 +21,8 @@ WORKDIR /app
 
 COPY --from=builder /app/build/server /app
 COPY --from=builder /app/build/seeder /app
-COPY ./docker/entrypoint.sh /app/entrypoint.sh
+COPY ./api/docker/entrypoint.sh /app/entrypoint.sh
+COPY ./api/internal/persistence/seed/test.sql /app/seed.sql
 
 RUN chmod +x /app/entrypoint.sh
 

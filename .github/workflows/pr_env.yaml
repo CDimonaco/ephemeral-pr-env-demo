@@ -1,0 +1,65 @@
+name:  Pull request environment
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - labeled
+
+env:
+  PR_ENV_LABEL: env
+  PR_NUMBER: "${{ github.event.pull_request.number }}"
+
+jobs:
+  check_env_creation_privilege:
+    name: Check if the environment creation criteria are met, store in the job output
+    runs-on: ubuntu-latest
+    outputs:
+      create_env: ${{ steps.check.outputs.create_env }}
+    steps:
+      - id: check
+        run: echo "create_env=${{ contains(github.event.pull_request.labels.*.name, env.PR_ENV_LABEL) }}" >> "$GITHUB_OUTPUT"
+
+  build-and-push-pr-image:
+    needs: check_env_creation_privilege
+    name: Build and push pull request container image
+    runs-on: ubuntu-latest
+    if: needs.check_env_creation_privilege.outputs.create_env == 'true'
+    permissions:
+      contents: read
+      packages: write
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_REPOSITORY: ghcr.io/cdimonaco/pr-api
+      IMAGE_TAG: ${{ github.event.pull_request.number }}-env
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to the Container registry
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934
+        with:
+          images: ${{ env.IMAGE_REPOSITORY }}
+      - name: Build and push container image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: "./api/docker/Dockerfile"
+          push: true
+          tags: ${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
