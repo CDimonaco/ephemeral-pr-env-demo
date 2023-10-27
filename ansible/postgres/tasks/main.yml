@@ -41,13 +41,13 @@
    address: "0.0.0.0/0"
    method: "md5"
 
-- name: Create postgres web database
+- name: Create postgres api database
   become_user: postgres
   community.postgresql.postgresql_db:
    name: "{{ api_postgres_db }}"
    state: present
 
-- name: Create web database user
+- name: Create api database user
   become_user: postgres
   community.postgresql.postgresql_user:
    db: "{{ api_postgres_db }}"

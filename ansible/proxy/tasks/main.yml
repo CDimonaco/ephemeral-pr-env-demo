@@ -22,7 +22,7 @@
   notify:
     - Restart nginx
 
-- name: Configure web project
+- name: Configure api project
   ansible.builtin.template:
     src: "api.conf.j2"
     dest: "{{ nginx_conf_base_dir }}/{{ nginx_vhost_dir }}/{{ nginx_vhost_filename }}.conf"
