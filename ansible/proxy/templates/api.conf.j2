@@ -1,0 +1,26 @@
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  '' close;
+}
+
+upstream {{ api_upstream }} {
+  server 127.0.0.1:{{ api_port }} max_fails=5 fail_timeout=60s;
+}
+
+server {
+  server_name {{ server_name }};
+  listen {{ listen_port }};
+
+  # Web rule
+  location / {
+    allow all;
+
+    # Proxy Headers
+    proxy_http_version 1.1;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Cluster-Client-Ip $remote_addr;
+
+    proxy_pass http://{{ api_upstream }};
+  }
+}

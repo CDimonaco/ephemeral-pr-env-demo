@@ -1,0 +1,44 @@
+# code: language=ansible
+---
+- name: Install nginx
+  when: install_nginx == 'true'
+  community.general.zypper:
+    name:
+      - nginx
+    state: present
+    update_cache: true
+
+- name: Override default nginx config
+  when: override_nginx_default_conf == 'true'
+  ansible.builtin.template:
+    src: "nginx-default.conf.j2"
+    dest: "{{ nginx_conf_base_dir }}/nginx.conf"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: "0644"
+  vars:
+    conf_folder: "{{ nginx_conf_dir }}"
+    vhost_folder: "{{ nginx_vhost_dir }}"
+  notify:
+    - Restart nginx
+
+- name: Configure web project
+  ansible.builtin.template:
+    src: "api.conf.j2"
+    dest: "{{ nginx_conf_base_dir }}/{{ nginx_vhost_dir }}/{{ nginx_vhost_filename }}.conf"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: "0644"
+  vars:
+    server_name: "{{ api_server_name }}"
+    api_port: "{{ api_container_port }}"
+    listen_port: "{{ nginx_vhost_listen_port }}"
+    api_upstream: "{{ api_upstream_name }}"
+  notify:
+    - Restart nginx
+
+- name: Start nginx service
+  ansible.builtin.service:
+    name: "{{ nginx_service }}"
+    state: started
+    enabled: true

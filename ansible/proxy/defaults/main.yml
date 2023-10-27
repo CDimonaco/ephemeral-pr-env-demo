@@ -1,0 +1,6 @@
+---
+install_nginx: 'true'
+override_nginx_default_conf: 'true'
+nginx_conf_filename: "envdemo"
+nginx_vhost_listen_port: "80"
+api_upstream_name: "api"
