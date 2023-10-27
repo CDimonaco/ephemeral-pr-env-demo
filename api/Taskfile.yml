@@ -3,11 +3,16 @@
 version: '3'
 
 tasks:
+  build-server:
+    cmds:
+      -  CGO_ENABLED=0 go build -o ./build/server cmd/server/main.go
+  
   run-server:
     vars:
       PG_CONNECTION: "postgresql://postgres:postgres@localhost:5433/api_demo?sslmode=disable"
     cmds:
       - DB_CONNECTION={{ .PG_CONNECTION }} go run cmd/server/main.go
+
   migrate-down:
     cmds:
       - migrate -path internal/persistence/migrations -database "postgresql://postgres:postgres@localhost:5433/api_demo?sslmode=disable" down
