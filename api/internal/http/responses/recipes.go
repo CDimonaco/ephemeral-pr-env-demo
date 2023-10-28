@@ -3,9 +3,10 @@ package responses
 import "github.com/cdimonaco/ephimeral-pr-env-demo/api/internal/persistence"
 
 type RecipeResponse struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	ID          int      `json:"id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Ingredients []string `json:"ingredients"`
 }
 
 func MapRecipeEntityToRecipeResponse(entity persistence.Recipe) RecipeResponse {
@@ -13,6 +14,7 @@ func MapRecipeEntityToRecipeResponse(entity persistence.Recipe) RecipeResponse {
 		ID:          entity.ID,
 		Name:        entity.Name,
 		Description: entity.Description,
+		Ingredients: entity.Ingredients,
 	}
 }
 
