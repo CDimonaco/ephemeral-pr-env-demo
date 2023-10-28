@@ -39,6 +39,7 @@ func (r *RecipesRepository) GetRecipes(ctx context.Context) ([]Recipe, error) {
 			"id",
 			"name",
 			"description",
+			"ingredients",
 		).
 		From(recipesTable).
 		ToSql()
