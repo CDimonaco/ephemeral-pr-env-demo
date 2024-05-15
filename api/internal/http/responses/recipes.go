@@ -6,7 +6,7 @@ type RecipeResponse struct {
 	ID          int      `json:"id"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
-	Ingredients []string `json:"ingredients"`
+	Ingredients []string `json:"recipe_ingredients"`
 }
 
 func MapRecipeEntityToRecipeResponse(entity persistence.Recipe) RecipeResponse {
